@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: example-config
-  namespace: default  # Change if needed
+  namespace: openshift-gitops-operator
 data:
   app.properties: |
     key1=value1
