@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  namespace: default
+spec:
+  ports:
+  - port: 2379  # Client port
+    name: client
+  - port: 2380  # Peer port
+    name: peer
+  selector:
+    app: etcd
+  clusterIP: None  # For StatefulSet headless service
