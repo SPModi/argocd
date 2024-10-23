@@ -2,7 +2,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: nginx-route
-  namespace: default
+  namespace: openshift-gitops-operator
 spec:
   to:
     kind: Service
