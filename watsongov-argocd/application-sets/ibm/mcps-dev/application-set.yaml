@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: factsheet-argocd-enablement-ibm-dev
+  namespace: argocd-worker
+  labels:
+    cloud: ibm
+    environment: dev
+    region: us-east
+spec:
+  generators:
+  # Generate variables for the template
+  - list:
+      # List of clusters in region
+      elements:
+      # dev
+      - region: us-east
+        clusterURL: https://kubernetes.default.svc
+        namespace: product-registration
+        env: dev
+        valuesFiles: -f ./values/dev/values.yaml -f ./values/dev/sublocations.yaml -f ./values/dev/email_templates.yaml
+  template:
+    metadata:
+      name: factsheet-argocd-enablement-ibm-{{ env }}-{{ region }}
+      namespace: argocd-worker
+      labels:
+        cloud: ibm
+        environment: "{{ env }}"
+        region: "{{ region }}"
+    spec:
+    # The project the application belongs to.
+      project: factsheet-argocd-resources
+      # Source of the application manifests
+      # In production it is recommended to use specific commit SHA
+      source:
+        repoURL: https://github.ibm.com/automation-paas-cd-pipeline/factsheet-argocd.git
+        targetRevision: main
+        path: resources-ibm
+        # plugin specific config
+        plugin:
+          name: argocd-vault-plugin-helm-custom
+          # environment variables passed to the plugin
+          # You can pass environment specific helm overrides here
+          env:
+            - name: HELM_VALUES
+              value: "{{ valuesFiles }}"
+            - name: HELM_ARGS
+              value: --set environment={{ env }} --set region={{ region }}
+            - name: AVP_SECRET
+              value: argocd-build-wxdata-credentials
+      # Destination cluster and namespace to deploy the application
+      destination:
+        # cluster API URL
+        server: "{{ clusterURL }}"
+        namespace: "{{ namespace }}"
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
+        retry:
+          limit: 2
+          backoff:
+            duration: 2m
+            factor: 3
+            maxDuration: 8m        
