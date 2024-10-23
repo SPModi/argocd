@@ -1,0 +1,11 @@
+region: us-east-1
+instance:
+  id: csba-ap-dp-001
+  name: csb-adapter
+  createdAt: '2022-09-15T05:23:45Z'
+cluster:
+  id: ap-dp-001
+  url: https://kubernetes.default.svc
+  namespace: csb-demo
+csb:
+ callbackURL: https://csb-adapter.csb-demo:7329
